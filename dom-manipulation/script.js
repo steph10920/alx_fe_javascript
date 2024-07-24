@@ -51,6 +51,31 @@ let quotes = JSON.parse(localStorage.getItem('quotes')) || [
     document.body.appendChild(formContainer);
   }
   
+  // Function to export quotes to a JSON file
+  function exportToJsonFile() {
+    const dataStr = JSON.stringify(quotes, null, 2);
+    const dataBlob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(dataBlob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'quotes.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  }
+  
+  // Function to import quotes from a JSON file
+  function importFromJsonFile(event) {
+    const fileReader = new FileReader();
+    fileReader.onload = function(event) {
+      const importedQuotes = JSON.parse(event.target.result);
+      quotes.push(...importedQuotes);
+      saveQuotes();
+      alert('Quotes imported successfully!');
+    };
+    fileReader.readAsText(event.target.files[0]);
+  }
+  
   // Initialize the application
   function init() {
     createAddQuoteForm();
