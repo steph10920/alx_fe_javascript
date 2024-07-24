@@ -32,5 +32,23 @@ let quotes = [
     }
   }
   
-  // Initial quote display
-  showRandomQuote();
+  // Function to create and append the quote addition form to the DOM
+  function createAddQuoteForm() {
+    const formContainer = document.createElement('div');
+    formContainer.innerHTML = `
+      <input id="newQuoteText" type="text" placeholder="Enter a new quote" />
+      <input id="newQuoteCategory" type="text" placeholder="Enter quote category" />
+      <button onclick="addQuote()">Add Quote</button>
+    `;
+    document.body.appendChild(formContainer);
+  }
+  
+  // Initialize the application
+  function init() {
+    createAddQuoteForm();
+    showRandomQuote();
+  }
+  
+  // Run the initialization function on page load
+  window.onload = init;
+  
