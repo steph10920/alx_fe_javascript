@@ -1,11 +1,16 @@
 // script.js
 
-// Array to store quotes
-let quotes = [
+// Initialize quotes array from local storage or default to some quotes
+let quotes = JSON.parse(localStorage.getItem('quotes')) || [
     { text: "Life is what happens when you're busy making other plans.", category: "Life" },
     { text: "The way to get started is to quit talking and begin doing.", category: "Motivation" },
     { text: "Your time is limited, so don't waste it living someone else's life.", category: "Inspirational" }
   ];
+  
+  // Function to save quotes to local storage
+  function saveQuotes() {
+    localStorage.setItem('quotes', JSON.stringify(quotes));
+  }
   
   // Function to display a random quote
   function showRandomQuote() {
@@ -13,6 +18,8 @@ let quotes = [
     const randomIndex = Math.floor(Math.random() * quotes.length);
     const randomQuote = quotes[randomIndex];
     quoteDisplay.innerHTML = `<p>${randomQuote.text}</p><p><em>Category: ${randomQuote.category}</em></p>`;
+    // Save the last viewed quote to session storage
+    sessionStorage.setItem('lastQuote', JSON.stringify(randomQuote));
   }
   
   // Event listener for "Show New Quote" button
@@ -24,6 +31,7 @@ let quotes = [
     const newQuoteCategory = document.getElementById('newQuoteCategory').value;
     if (newQuoteText && newQuoteCategory) {
       quotes.push({ text: newQuoteText, category: newQuoteCategory });
+      saveQuotes();
       document.getElementById('newQuoteText').value = '';
       document.getElementById('newQuoteCategory').value = '';
       alert('Quote added successfully!');
@@ -46,7 +54,12 @@ let quotes = [
   // Initialize the application
   function init() {
     createAddQuoteForm();
-    showRandomQuote();
+    const lastQuote = JSON.parse(sessionStorage.getItem('lastQuote'));
+    if (lastQuote) {
+      document.getElementById('quoteDisplay').innerHTML = `<p>${lastQuote.text}</p><p><em>Category: ${lastQuote.category}</em></p>`;
+    } else {
+      showRandomQuote();
+    }
   }
   
   // Run the initialization function on page load
