@@ -41,43 +41,59 @@ async function postQuoteToServer(newQuote) {
   }
 }
 
-// Function to add a new quote
-function addQuote() {
-  const newQuoteText = document.getElementById("newQuoteText").value;
-  const newQuoteCategory = document.getElementById("newQuoteCategory").value;
-  
-  if (newQuoteText && newQuoteCategory) {
-    const newQuote = { text: newQuoteText, category: newQuoteCategory };
-    
-    quotes.push(newQuote);
-    localStorage.setItem("quotes", JSON.stringify(quotes));
-    
-    // Post the new quote to the server
-    postQuoteToServer(newQuote);
-    
-    document.getElementById("newQuoteText").value = "";
-    document.getElementById("newQuoteCategory").value = "";
-    alert("New quote added!");
-    populateCategories();
-  } else {
-    alert("Please enter both a quote and a category.");
+// Function to export quotes to a JSON file
+function exportToJsonFile() {
+  try {
+    // Convert the quotes array to a JSON string
+    const dataStr = JSON.stringify(quotes, null, 2); // Pretty print JSON
+
+    // Create a Blob from the JSON string
+    const dataBlob = new Blob([dataStr], { type: 'application/json' });
+
+    // Create an URL for the Blob and create a download link
+    const url = URL.createObjectURL(dataBlob);
+    const downloadLink = document.createElement('a');
+    downloadLink.href = url;
+    downloadLink.download = 'quotes.json';
+
+    // Programmatically click the download link to trigger the download
+    downloadLink.click();
+
+    // Clean up the URL object
+    URL.revokeObjectURL(url);
+  } catch (error) {
+    console.error('Error exporting quotes to JSON:', error);
   }
+}
+
+// Function to import quotes from a JSON file
+function importFromJsonFile(event) {
+  const fileReader = new FileReader();
+  fileReader.onload = function(event) {
+    try {
+      const importedQuotes = JSON.parse(event.target.result);
+      quotes = importedQuotes;
+      localStorage.setItem("quotes", JSON.stringify(quotes));
+      notifyUser('Quotes imported successfully!');
+      updateCategoryFilter();
+      showRandomQuote(); // Update the displayed quote after import
+    } catch (error) {
+      console.error('Error importing quotes from JSON:', error);
+      notifyUser('Error importing quotes.');
+    }
+  };
+  fileReader.readAsText(event.target.files[0]);
 }
 
 // Function to update local quotes with server data
 function updateLocalQuotes(serverQuotes) {
-  // Retrieve existing quotes from local storage
   const localQuotes = JSON.parse(localStorage.getItem("quotes")) || [];
-
-  // Simple conflict resolution: Server data takes precedence
   const updatedQuotes = [...serverQuotes];
-
-  // Update local storage with the server quotes
   localStorage.setItem("quotes", JSON.stringify(updatedQuotes));
-  quotes = updatedQuotes; // Update in-memory quotes
-  populateCategories(); // Update categories in the UI
-  showRandomQuote(); // Display a random quote from updated data
-  notifyUser('Quotes updated from server!'); // Notify the user of the update
+  quotes = updatedQuotes;
+  populateCategories();
+  showRandomQuote();
+  notifyUser('Quotes updated from server!');
 }
 
 // Function to notify users
@@ -96,12 +112,18 @@ function notifyUser(message) {
   setTimeout(() => notification.remove(), 5000); // Remove notification after 5 seconds
 }
 
-// Fetch data every 5 minutes (300000 milliseconds)
-setInterval(fetchQuotesFromServer, 300000);
+// Sync data every 5 minutes (300000 milliseconds)
+setInterval(syncQuotes, 300000);
 
 // Initialize the application
 document.addEventListener("DOMContentLoaded", () => {
   populateCategories();
   showRandomQuote();
   createAddQuoteForm();
+
+  // Add event listener to the export button
+  document.getElementById('exportButton').addEventListener('click', exportToJsonFile);
+
+  // Add event listener to the import file input
+  document.getElementById('importFile').addEventListener('change', importFromJsonFile);
 });
