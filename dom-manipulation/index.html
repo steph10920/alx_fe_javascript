@@ -7,19 +7,15 @@
 </head>
 <body>
   <h1>Dynamic Quote Generator</h1>
-  <div>
-    <label for="categoryFilter">Filter by Category:</label>
-    <select id="categoryFilter" onchange="filterQuotes()">
-      <option value="all">All Categories</option>
-    </select>
-  </div>
   <div id="quoteDisplay"></div>
   <button id="newQuote">Show New Quote</button>
+  
   <div>
     <input id="newQuoteText" type="text" placeholder="Enter a new quote" />
     <input id="newQuoteCategory" type="text" placeholder="Enter quote category" />
-    <button onclick="addQuote()">Add Quote</button>
+    <button id="addQuote">Add Quote</button>
   </div>
+  
   <script src="script.js"></script>
 </body>
 </html>
