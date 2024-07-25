@@ -72,16 +72,13 @@ function importFromJsonFile(event) {
   const fileReader = new FileReader();
   fileReader.onload = function(event) {
     const importedQuotes = JSON.parse(event.target.result);
-    quotes.push(...importedQuotes);
-    localStorage.setItem("quotes", JSON.stringify(quotes));
+    updateLocalQuotes(importedQuotes);
     alert('Quotes imported successfully!');
-    updateCategoryFilter();
-    showRandomQuote(); // Update the displayed quote after import
   };
   fileReader.readAsText(event.target.files[0]);
 }
 
-function updateCategoryFilter() {
+function populateCategories() {
   const categories = new Set(quotes.map(q => q.category));
   categoryFilter.innerHTML = '<option value="all">All Categories</option>';
   categories.forEach(category => {
@@ -107,8 +104,50 @@ function filterQuotes() {
   showRandomQuote();
 }
 
+function fetchServerQuotes() {
+  fetch(API_URL)
+    .then(response => response.json())
+    .then(data => {
+      const serverQuotes = data.map(post => ({
+        text: post.title,
+        category: post.body
+      }));
+
+      // Conflict resolution: Server data takes precedence
+      updateLocalQuotes(serverQuotes);
+      notifyUser('Quotes updated from server!');
+    })
+    .catch(error => console.error('Error fetching server data:', error));
+}
+
+// Fetch data every 5 minutes (300000 milliseconds)
+setInterval(fetchServerQuotes, 300000);
+
+function updateLocalQuotes(serverQuotes) {
+  // Update local storage and quotes array with server data
+  localStorage.setItem("quotes", JSON.stringify(serverQuotes));
+  quotes = serverQuotes;
+  populateCategories();
+  showRandomQuote();
+}
+
+function notifyUser(message) {
+  const notification = document.createElement('div');
+  notification.textContent = message;
+  notification.style.position = 'fixed';
+  notification.style.bottom = '0';
+  notification.style.right = '0';
+  notification.style.backgroundColor = '#f8d7da';
+  notification.style.color = '#721c24';
+  notification.style.padding = '10px';
+  notification.style.border = '1px solid #f5c6cb';
+  document.body.appendChild(notification);
+
+  setTimeout(() => notification.remove(), 5000); // Remove notification after 5 seconds
+}
+
 document.addEventListener("DOMContentLoaded", () => {
-  updateCategoryFilter();
+  populateCategories();
   showRandomQuote();
   createAddQuoteForm();
 });
