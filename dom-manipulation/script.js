@@ -6,10 +6,12 @@ let quotes = JSON.parse(localStorage.getItem("quotes")) || [
 ];
 
 const quoteDisplay = document.getElementById("quoteDisplay");
+const categoryFilter = document.getElementById("categoryFilter");
 
 function showRandomQuote() {
-  const randomIndex = Math.floor(Math.random() * quotes.length);
-  const quote = quotes[randomIndex];
+  const filteredQuotes = filterQuotesByCategory(quotes);
+  const randomIndex = Math.floor(Math.random() * filteredQuotes.length);
+  const quote = filteredQuotes[randomIndex];
   quoteDisplay.innerHTML = `<p>${quote.text}</p><p><em>${quote.category}</em></p>`;
   sessionStorage.setItem("lastViewedQuote", JSON.stringify(quote));
 }
@@ -24,6 +26,7 @@ function addQuote() {
     document.getElementById("newQuoteText").value = "";
     document.getElementById("newQuoteCategory").value = "";
     alert("New quote added!");
+    updateCategoryFilter();
   } else {
     alert("Please enter both a quote and a category.");
   }
@@ -68,12 +71,40 @@ function importFromJsonFile(event) {
     quotes.push(...importedQuotes);
     localStorage.setItem("quotes", JSON.stringify(quotes));
     alert('Quotes imported successfully!');
+    updateCategoryFilter();
     showRandomQuote(); // Update the displayed quote after import
   };
   fileReader.readAsText(event.target.files[0]);
 }
 
+function updateCategoryFilter() {
+  const categories = new Set(quotes.map(q => q.category));
+  categoryFilter.innerHTML = '<option value="all">All Categories</option>';
+  categories.forEach(category => {
+    const option = document.createElement("option");
+    option.value = category;
+    option.textContent = category;
+    categoryFilter.appendChild(option);
+  });
+  const lastSelectedCategory = localStorage.getItem("lastSelectedCategory") || "all";
+  categoryFilter.value = lastSelectedCategory;
+}
+
+function filterQuotesByCategory(quotes) {
+  const selectedCategory = categoryFilter.value;
+  if (selectedCategory === "all") {
+    return quotes;
+  }
+  return quotes.filter(q => q.category === selectedCategory);
+}
+
+function filterQuotes() {
+  localStorage.setItem("lastSelectedCategory", categoryFilter.value);
+  showRandomQuote();
+}
+
 document.addEventListener("DOMContentLoaded", () => {
+  updateCategoryFilter();
   showRandomQuote();
   createAddQuoteForm();
 });
