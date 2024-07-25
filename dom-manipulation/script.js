@@ -29,6 +29,28 @@ function addQuote() {
   }
 }
 
+function createAddQuoteForm() {
+  const formContainer = document.getElementById("quoteFormContainer");
+
+  const quoteInput = document.createElement("input");
+  quoteInput.id = "newQuoteText";
+  quoteInput.type = "text";
+  quoteInput.placeholder = "Enter a new quote";
+  
+  const categoryInput = document.createElement("input");
+  categoryInput.id = "newQuoteCategory";
+  categoryInput.type = "text";
+  categoryInput.placeholder = "Enter quote category";
+
+  const addButton = document.createElement("button");
+  addButton.textContent = "Add Quote";
+  addButton.setAttribute("onclick", "addQuote()");
+
+  formContainer.appendChild(quoteInput);
+  formContainer.appendChild(categoryInput);
+  formContainer.appendChild(addButton);
+}
+
 function exportToJsonFile() {
   const dataStr = JSON.stringify(quotes);
   const dataBlob = new Blob([dataStr], { type: "application/json" });
@@ -51,4 +73,7 @@ function importFromJsonFile(event) {
   fileReader.readAsText(event.target.files[0]);
 }
 
-document.addEventListener("DOMContentLoaded", showRandomQuote);
+document.addEventListener("DOMContentLoaded", () => {
+  showRandomQuote();
+  createAddQuoteForm();
+});
