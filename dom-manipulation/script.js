@@ -1,9 +1,8 @@
 const API_URL = 'https://jsonplaceholder.typicode.com/posts'; // Example URL
 
-// Function to sync local quotes with server
-async function syncQuotes() {
+// Function to fetch quotes from the mock server using async/await
+async function fetchQuotesFromServer() {
   try {
-    // Fetch quotes from the server
     const response = await fetch(API_URL);
     const data = await response.json();
 
@@ -13,24 +12,10 @@ async function syncQuotes() {
       category: post.body // Adjust based on actual data structure
     }));
 
-    // Retrieve existing quotes from local storage
-    const localQuotes = JSON.parse(localStorage.getItem("quotes")) || [];
-
-    // Simple conflict resolution: Server data takes precedence
-    const updatedQuotes = [...serverQuotes];
-    
-    // Update local storage with the server quotes
-    localStorage.setItem("quotes", JSON.stringify(updatedQuotes));
-    quotes = updatedQuotes; // Update in-memory quotes
-
-    // Notify the user of the update
-    notifyUser('Quotes updated from server!');
-
-    // Update the UI
-    populateCategories(); // Update categories in the UI
-    showRandomQuote(); // Display a random quote from updated data
+    // Update local quotes with server data
+    updateLocalQuotes(serverQuotes);
   } catch (error) {
-    console.error('Error syncing quotes:', error);
+    console.error('Error fetching server data:', error);
   }
 }
 
@@ -79,6 +64,22 @@ function addQuote() {
   }
 }
 
+// Function to update local quotes with server data
+function updateLocalQuotes(serverQuotes) {
+  // Retrieve existing quotes from local storage
+  const localQuotes = JSON.parse(localStorage.getItem("quotes")) || [];
+
+  // Simple conflict resolution: Server data takes precedence
+  const updatedQuotes = [...serverQuotes];
+
+  // Update local storage with the server quotes
+  localStorage.setItem("quotes", JSON.stringify(updatedQuotes));
+  quotes = updatedQuotes; // Update in-memory quotes
+  populateCategories(); // Update categories in the UI
+  showRandomQuote(); // Display a random quote from updated data
+  notifyUser('Quotes updated from server!'); // Notify the user of the update
+}
+
 // Function to notify users
 function notifyUser(message) {
   const notification = document.createElement('div');
@@ -95,8 +96,8 @@ function notifyUser(message) {
   setTimeout(() => notification.remove(), 5000); // Remove notification after 5 seconds
 }
 
-// Sync data every 5 minutes (300000 milliseconds)
-setInterval(syncQuotes, 300000);
+// Fetch data every 5 minutes (300000 milliseconds)
+setInterval(fetchQuotesFromServer, 300000);
 
 // Initialize the application
 document.addEventListener("DOMContentLoaded", () => {
