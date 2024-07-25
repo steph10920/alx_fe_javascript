@@ -10,6 +10,10 @@ const categoryFilter = document.getElementById("categoryFilter");
 
 function showRandomQuote() {
   const filteredQuotes = filterQuotesByCategory(quotes);
+  if (filteredQuotes.length === 0) {
+    quoteDisplay.innerHTML = "<p>No quotes available in this category.</p>";
+    return;
+  }
   const randomIndex = Math.floor(Math.random() * filteredQuotes.length);
   const quote = filteredQuotes[randomIndex];
   quoteDisplay.innerHTML = `<p>${quote.text}</p><p><em>${quote.category}</em></p>`;
