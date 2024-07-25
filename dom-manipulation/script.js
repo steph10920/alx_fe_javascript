@@ -30,7 +30,7 @@ function addQuote() {
     document.getElementById("newQuoteText").value = "";
     document.getElementById("newQuoteCategory").value = "";
     alert("New quote added!");
-    updateCategoryFilter();
+    populateCategories();
   } else {
     alert("Please enter both a quote and a category.");
   }
