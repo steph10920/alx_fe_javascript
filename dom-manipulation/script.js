@@ -1,20 +1,22 @@
 const API_URL = 'https://jsonplaceholder.typicode.com/posts'; // Example URL
 
-// Function to fetch quotes from the mock server
-function fetchQuotesFromServer() {
-  fetch(API_URL)
-    .then(response => response.json())
-    .then(data => {
-      // Transform the server data into the format used by your application
-      const serverQuotes = data.map(post => ({
-        text: post.title, // Adjust based on actual data structure
-        category: post.body // Adjust based on actual data structure
-      }));
+// Function to fetch quotes from the mock server using async/await
+async function fetchQuotesFromServer() {
+  try {
+    const response = await fetch(API_URL);
+    const data = await response.json();
 
-      // Update local quotes with server data
-      updateLocalQuotes(serverQuotes);
-    })
-    .catch(error => console.error('Error fetching server data:', error));
+    // Transform the server data into the format used by your application
+    const serverQuotes = data.map(post => ({
+      text: post.title, // Adjust based on actual data structure
+      category: post.body // Adjust based on actual data structure
+    }));
+
+    // Update local quotes with server data
+    updateLocalQuotes(serverQuotes);
+  } catch (error) {
+    console.error('Error fetching server data:', error);
+  }
 }
 
 // Function to update local quotes with server data
